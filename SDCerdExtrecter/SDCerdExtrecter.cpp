@@ -128,7 +128,7 @@ void consumer() {
 }
 
 int main() {
-  std::thread prod(producer, 250); // produce 10 beeps
+  std::thread prod(producer, 250);
   std::thread cons(consumer);
   prod.join();
   cons.join();
