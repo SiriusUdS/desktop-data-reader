@@ -9,6 +9,13 @@
 
 class BeepQueueManager {
 public:
+	BeepQueueManager() = default;
+	~BeepQueueManager() = default;
+	BeepQueueManager(const BeepQueueManager&) = delete; // Copy constructor
+	BeepQueueManager& operator=(const BeepQueueManager&) = delete; // Copy assignment operator
+	BeepQueueManager(BeepQueueManager&&) = delete; // Move constructor
+	BeepQueueManager& operator=(BeepQueueManager&&) = delete; // Move assignment operator
+
   void produceBeeps(int count);
   void consumeBeeps();
 
