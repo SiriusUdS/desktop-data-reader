@@ -164,6 +164,7 @@
     <ClInclude Include="audio\AudioBeepPlaybackManager.h" />
     <ClInclude Include="audio\AudioSignalGenerator.h" />
     <ClInclude Include="audio\BeepQueueManager.h" />
+    <ClInclude Include="reader\CRC.h" />
     <ClInclude Include="reader\SDCardReader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

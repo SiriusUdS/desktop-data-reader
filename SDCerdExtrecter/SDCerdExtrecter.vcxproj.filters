@@ -53,5 +53,8 @@
     <ClInclude Include="reader\SDCardReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="reader\CRC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
