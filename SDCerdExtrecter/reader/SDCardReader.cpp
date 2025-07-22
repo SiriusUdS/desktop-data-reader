@@ -28,10 +28,3 @@ size_t SDCardReader::getBytesRead() const {
 const SDCardBuffer& SDCardReader::getBuffer() const {
   return buffer;
 }
-
-void SDCardReader::printHex(size_t count) const {
-  for (size_t i = 0; i < std::min(count, bytesRead_); i++) {
-    printf("%02X ", buffer.raw[i]);
-  }
-  std::cout << '\n';
-}

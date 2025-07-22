@@ -6,11 +6,14 @@ class SDCardReader {
 public:
 	SDCardReader() = default;
 	~SDCardReader() = default;
+	SDCardReader(const SDCardReader&) = default; // Copy constructor
+	SDCardReader& operator=(const SDCardReader&) = default; // Copy assignment operator
+	SDCardReader(SDCardReader&&) noexcept = default; // Move constructor
+	SDCardReader& operator=(SDCardReader&&) noexcept = default; // Move assignment operator
 
   bool readFromFile(const std::string& filename);
-  size_t getBytesRead() const;
-  const SDCardBuffer& getBuffer() const;
-  void printHex(size_t count = 16) const;
+  [[nodiscard]] size_t getBytesRead() const;
+  [[nodiscard]] const SDCardBuffer& getBuffer() const;
 
 private:
   SDCardBuffer buffer;
