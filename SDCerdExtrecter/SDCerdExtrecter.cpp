@@ -6,13 +6,8 @@
 
 int main() {
   const std::string filename = "E:/4/Data.bin";
-  SDCardReader reader;
-  if (!reader.readFromFile(filename)) {
-    return 1;
-  }
-  std::cout << "Read " << reader.getBytesRead() << " bytes from file." << '\n';
-
-
+  SDCardReader reader(filename);
+  auto buffer = reader.readNext();
 
   BeepQueueManager manager;
   std::thread prod(&BeepQueueManager::produceBeeps, &manager, 250);

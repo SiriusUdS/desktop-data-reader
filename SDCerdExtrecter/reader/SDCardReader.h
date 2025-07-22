@@ -1,10 +1,12 @@
 #pragma once
 #include <string>
+#include <fstream>
+#include <iostream>
 #include "SDCardBuffer.h"
 
 class SDCardReader {
 public:
-	SDCardReader() = default;
+	SDCardReader(const std::string& filename);
 	~SDCardReader() = default;
 	SDCardReader(const SDCardReader&) = default; // Copy constructor
 	SDCardReader& operator=(const SDCardReader&) = default; // Copy assignment operator
@@ -12,11 +14,15 @@ public:
 	SDCardReader& operator=(SDCardReader&&) noexcept = default; // Move assignment operator
 
 
-  bool readFromFile(const std::string& filename);
+	[[nodiscard]] SDCardFormattedData& readNext();
   [[nodiscard]] size_t getBytesRead() const;
-  [[nodiscard]] const SDCardBuffer& getBuffer() const;
+  [[nodiscard]] const SDCardFormattedData& getBuffer() const;
 
 private:
-  SDCardBuffer buffer;
+	std::ifstream file;
+	std::string filename;
+	size_t fileSize;
+	size_t numberOfFilledPages;
+  SDCardFormattedData buffer;
   size_t bytesRead = 0;
 };
