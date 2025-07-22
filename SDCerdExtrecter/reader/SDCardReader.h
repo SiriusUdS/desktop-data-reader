@@ -11,11 +11,12 @@ public:
 	SDCardReader(SDCardReader&&) noexcept = default; // Move constructor
 	SDCardReader& operator=(SDCardReader&&) noexcept = default; // Move assignment operator
 
+
   bool readFromFile(const std::string& filename);
   [[nodiscard]] size_t getBytesRead() const;
   [[nodiscard]] const SDCardBuffer& getBuffer() const;
 
 private:
   SDCardBuffer buffer;
-  size_t bytesRead_ = 0;
+  size_t bytesRead = 0;
 };
