@@ -125,7 +125,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\SFML\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>reader\buffers;reader;audio;C:\SFML\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,7 +151,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="audio\AudioBeepConfiguration.cpp" />
+    <ClCompile Include="audio\AudioBeepPlaybackManager.cpp" />
+    <ClCompile Include="audio\AudioSignalGenerator.cpp" />
+    <ClCompile Include="audio\BeepQueueManager.cpp" />
+    <ClCompile Include="reader\buffers\SDCardBuffer.h" />
+    <ClCompile Include="reader\SDCardReader.cpp" />
     <ClCompile Include="SDCerdExtrecter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="audio\AudioBeepConfiguration.h" />
+    <ClInclude Include="audio\AudioBeepPlaybackManager.h" />
+    <ClInclude Include="audio\AudioSignalGenerator.h" />
+    <ClInclude Include="audio\BeepQueueManager.h" />
+    <ClInclude Include="reader\SDCardReader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
