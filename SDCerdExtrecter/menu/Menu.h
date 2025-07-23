@@ -13,6 +13,7 @@ private:
   void handleMenuChoice(int choice);
   void selectFile();
   void showDirectoryTree();
+  void selectOutputDir();
   static int getUserChoice(int min, int max, const std::string& prompt);
 
 public:
@@ -20,6 +21,7 @@ public:
 
 private:
   std::string selectedFile;
+  std::string outputDir;
   std::string lastAction;
   bool exitRequested = false;
 };

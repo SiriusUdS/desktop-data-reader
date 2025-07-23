@@ -25,7 +25,13 @@ void Menu::displayMenu() const {
   if (!selectedFile.empty()) {
     std::cout << " [" << selectedFile << "]";
   }
-  std::cout << "\n2. Show SD card directory tree\n";
+  std::cout << "\n2. Select output directory";
+  if (!outputDir.empty()) {
+    std::cout << " [" << outputDir << "]";
+  } else {
+    std::cout << " [Not set]";
+  }
+  std::cout << "\n3. Show SD card directory tree\n";
   std::cout << "3. Exit\n";
   if (!lastAction.empty()) {
     std::cout << "\n" << lastAction << "\n";
@@ -49,9 +55,12 @@ void Menu::handleMenuChoice(int choice) {
       selectFile();
       break;
     case 2:
-      showDirectoryTree();
+      selectOutputDir();
       break;
     case 3:
+      showDirectoryTree();
+      break;
+    case 4:
       exitRequested = true;
       break;
     default:
@@ -95,6 +104,28 @@ void Menu::showDirectoryTree() {
   std::cout << "\nPress [Enter] to return...";
   std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
+
+void Menu::selectOutputDir() {
+  std::cout << "\nEnter the output directory path:\n";
+  std::cin >> outputDir;
+  if (std::cin.fail()) {
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cout << "Invalid output directory.\n";
+    return;
+  }
+  if (outputDir.empty()) {
+    lastAction = "Output directory cannot be empty.";
+    return;
+  }
+  if (!fs::exists(outputDir) || !fs::is_directory(outputDir)) {
+    lastAction = "Invalid output directory.";
+    outputDir = "";
+    return;
+  }
+  lastAction = "Output directory set to: " + outputDir;
+}
+
 
 int Menu::getUserChoice(int min, int max, const std::string& prompt) {
   int choice = 0;
