@@ -13,7 +13,7 @@ void Menu::run() {
       system("clear");
     #endif
     displayMenu();
-    int choice = getUserChoice(1, 3, "Enter choice: ");
+    int choice = getUserChoice(1, 5, "Enter choice: ");
     handleMenuChoice(choice);
   }
 }
@@ -32,7 +32,13 @@ void Menu::displayMenu() const {
     std::cout << " [Not set]";
   }
   std::cout << "\n3. Show SD card directory tree\n";
-  std::cout << "3. Exit\n";
+  std::cout << "4. Toggle sound";
+  if (enableEarrape) {
+    std::cout << " [LOUD]\n";
+  } else {
+    std::cout << " [ON]\n";
+  }
+  std::cout << "5. Exit\n";
   if (!lastAction.empty()) {
     std::cout << "\n" << lastAction << "\n";
   }
@@ -61,6 +67,9 @@ void Menu::handleMenuChoice(int choice) {
       showDirectoryTree();
       break;
     case 4:
+      toggleSound();
+      break;
+    case 5:
       exitRequested = true;
       break;
     default:
@@ -126,6 +135,10 @@ void Menu::selectOutputDir() {
   lastAction = "Output directory set to: " + outputDir;
 }
 
+void Menu::toggleSound() {
+  enableEarrape = !enableEarrape;
+  lastAction = enableEarrape ? "Sound set to [LOUD]" : "Sound set to [ON]";
+}
 
 int Menu::getUserChoice(int min, int max, const std::string& prompt) {
   int choice = 0;

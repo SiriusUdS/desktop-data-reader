@@ -14,6 +14,7 @@ private:
   void selectFile();
   void showDirectoryTree();
   void selectOutputDir();
+  void toggleSound();
   static int getUserChoice(int min, int max, const std::string& prompt);
 
 public:
@@ -22,6 +23,7 @@ public:
 private:
   std::string selectedFile;
   std::string outputDir;
+  bool enableEarrape = false;
   std::string lastAction;
   bool exitRequested = false;
 };
