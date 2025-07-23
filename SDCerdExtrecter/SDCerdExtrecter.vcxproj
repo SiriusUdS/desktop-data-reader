@@ -155,6 +155,7 @@
     <ClCompile Include="audio\AudioBeepPlaybackManager.cpp" />
     <ClCompile Include="audio\AudioSignalGenerator.cpp" />
     <ClCompile Include="audio\BeepQueueManager.cpp" />
+    <ClCompile Include="menu\Menu.cpp" />
     <ClCompile Include="reader\buffers\SDCardBuffer.h" />
     <ClCompile Include="reader\SDCardReader.cpp" />
     <ClCompile Include="SDCerdExtrecter.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="audio\AudioBeepPlaybackManager.h" />
     <ClInclude Include="audio\AudioSignalGenerator.h" />
     <ClInclude Include="audio\BeepQueueManager.h" />
+    <ClInclude Include="menu\Menu.h" />
     <ClInclude Include="reader\CRC.h" />
     <ClInclude Include="reader\SDCardReader.h" />
     <ClInclude Include="utility\fileUtility.h" />
