@@ -59,7 +59,7 @@
     <ClInclude Include="reader\CRC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\fileUtility.h">
+    <ClInclude Include="utility\FileUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="menu\Menu.h">

@@ -168,7 +168,7 @@
     <ClInclude Include="menu\Menu.h" />
     <ClInclude Include="reader\CRC.h" />
     <ClInclude Include="reader\SDCardReader.h" />
-    <ClInclude Include="utility\fileUtility.h" />
+    <ClInclude Include="utility\FileUtility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
