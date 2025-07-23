@@ -18,13 +18,20 @@ struct SDCardFooter {
   uint32_t crc;
 };
 
-struct SDCardFormattedData {
-  uint8_t data[(SD_CARD_BUFFER_SIZE_BYTES / 2) - sizeof(SDCardFooter)];
-  SDCardFooter footer;
+constexpr size_t SD_CARD_DATA_SIZE = (SD_CARD_BUFFER_SIZE_BYTES / 2) - sizeof(SDCardFooter);
+constexpr size_t ADC_CHUNK_SIZE = 0x100;
+constexpr size_t ADC_CHANNEL_SECTION_SIZE = 0x10;
+constexpr size_t ADC_SECTIONS_PER_CHUNK = ADC_CHUNK_SIZE / ADC_CHANNEL_SECTION_SIZE;
+constexpr size_t CHUNKS_PER_PAGE = SD_CARD_DATA_SIZE / ADC_CHUNK_SIZE;
+
+struct ADCChunk {
+  uint16_t adcChannelData[ADC_CHANNEL_SECTION_SIZE];
 };
 
-union SDCardBuffer {
-  uint16_t values[SD_CARD_BUFFER_SIZE_BYTES / sizeof(uint16_t)];
-  SDCardFormattedData formattedData[2];
-  uint8_t raw[SD_CARD_BUFFER_SIZE_BYTES];
+struct SDCardFormattedData {
+  union {
+    uint8_t data[SD_CARD_DATA_SIZE];
+    ADCChunk chunks[CHUNKS_PER_PAGE];
+  };
+  SDCardFooter footer;
 };

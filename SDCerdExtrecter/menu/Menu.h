@@ -15,6 +15,7 @@ private:
   void showDirectoryTree();
   void selectOutputDir();
   void toggleSound();
+  void readSDCard();
   static int getUserChoice(int min, int max, const std::string& prompt);
 
 public:

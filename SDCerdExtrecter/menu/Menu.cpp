@@ -1,6 +1,8 @@
 #include "Menu.h"
 #include <iostream>
 #include <limits>
+
+#include "SDCardReader.h"
 #include "../utility/FileUtility.h"
 
 namespace fs = std::filesystem;
@@ -13,7 +15,7 @@ void Menu::run() {
       system("clear");
     #endif
     displayMenu();
-    int choice = getUserChoice(1, 5, "Enter choice: ");
+    const int choice = getUserChoice(1, 5, "Enter choice: ");
     handleMenuChoice(choice);
   }
 }
@@ -31,28 +33,18 @@ void Menu::displayMenu() const {
   } else {
     std::cout << " [Not set]";
   }
-  std::cout << "\n3. Show SD card directory tree\n";
-  std::cout << "4. Toggle sound";
+  std::cout << "\n3. Read SD card";
+  std::cout << "\n4. Show SD card directory tree\n";
+  std::cout << "5. Toggle sound";
   if (enableEarrape) {
     std::cout << " [LOUD]\n";
   } else {
     std::cout << " [ON]\n";
   }
-  std::cout << "5. Exit\n";
+  std::cout << "6. Exit\n";
   if (!lastAction.empty()) {
     std::cout << "\n" << lastAction << "\n";
   }
-}
-
-void Menu::printLogo() {
-  std::cout << R"(
-  ____  ____     ____             _   _____      _                 _            
- / ___||  _ \   / ___|___ _ __ __| | | ____|_  _| |_ _ __ ___  ___| |_ ___ _ __ 
- \___ \| | | | | |   / _ \ '__/ _` | |  _| \ \/ / __| '__/ _ \/ __| __/ _ \ '__|
-  ___) | |_| | | |__|  __/ | | (_| | | |___ >  <| |_| | |  __/ (__| ||  __/ |   
- |____/|____/   \____\___|_|  \__,_| |_____/_/\_\\__|_|  \___|\___|\__\___|_|                                                                
-)" << '\n';
-  std::cout << "==================== SDCerdExtrecter ====================\n" << '\n';
 }
 
 void Menu::handleMenuChoice(int choice) {
@@ -64,17 +56,50 @@ void Menu::handleMenuChoice(int choice) {
       selectOutputDir();
       break;
     case 3:
-      showDirectoryTree();
+      readSDCard();
       break;
     case 4:
-      toggleSound();
+      showDirectoryTree();
       break;
     case 5:
+      toggleSound();
+      break;
+    case 6:
       exitRequested = true;
       break;
     default:
       lastAction = "Invalid choice.";
       break;
+  }
+}
+
+void Menu::readSDCard() {
+  if (selectedFile.empty()) {
+    lastAction = "No file selected. Please select a file first.";
+    return;
+  }
+  if (outputDir.empty()) {
+    lastAction = "No output directory set. Please set an output directory first.";
+    return;
+  }
+  if (!fs::exists(selectedFile)) {
+    lastAction = "Selected file does not exist.";
+    return;
+  }
+  SDCardReader reader(selectedFile);
+  while (!reader.isEndOfFile()) {
+    SDCardFormattedData data = reader.readNext();
+
+    std::string outputFile = outputDir + "/" + std::to_string(reader.getBytesRead()) + ".csv";
+
+    //std::string outputFile = outputDir + "/" + std::to_string(reader.getBytesRead()) + ".bin";
+    //std::ofstream outFile(outputFile, std::ios::binary);
+    //if (!outFile) {
+    //  lastAction = "Failed to open output file: " + outputFile;
+    //  return;
+    //}
+    //outFile.write(reinterpret_cast<const char*>(data.data()), data.size());
+    //outFile.close();
   }
 }
 
@@ -155,4 +180,15 @@ int Menu::getUserChoice(int min, int max, const std::string& prompt) {
     }
   }
   return choice;
+}
+
+void Menu::printLogo() {
+  std::cout << R"(
+  ____  ____     ____             _   _____      _                 _            
+ / ___||  _ \   / ___|___ _ __ __| | | ____|_  _| |_ _ __ ___  ___| |_ ___ _ __ 
+ \___ \| | | | | |   / _ \ '__/ _` | |  _| \ \/ / __| '__/ _ \/ __| __/ _ \ '__|
+  ___) | |_| | | |__|  __/ | | (_| | | |___ >  <| |_| | |  __/ (__| ||  __/ |   
+ |____/|____/   \____\___|_|  \__,_| |_____/_/\_\\__|_|  \___|\___|\__\___|_|                                                                
+)" << '\n';
+  std::cout << "==================== SDCerdExtrecter ====================\n" << '\n';
 }

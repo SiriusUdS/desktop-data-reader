@@ -1,6 +1,6 @@
 #include "SDCardReader.h"
 
-SDCardReader::SDCardReader(const std::string& filename) {
+SDCardReader::SDCardReader(const std::string& filename) :pagesRead(0) {
 	buffer = SDCardFormattedData();
   this->filename = filename;
   file.open(filename, std::ios::binary);
@@ -19,18 +19,29 @@ SDCardReader::SDCardReader(const std::string& filename) {
 
 SDCardFormattedData& SDCardReader::readNext() {
   file.read(reinterpret_cast<char*>(buffer.data), sizeof(buffer.data));
-  std::streamsize dataBytesRead = file.gcount();
+  const std::streamsize dataBytesRead = file.gcount();
 
   file.read(reinterpret_cast<char*>(&buffer.footer), sizeof(buffer.footer));
-  std::streamsize footerBytesRead = file.gcount();
+  const std::streamsize footerBytesRead = file.gcount();
 
   bytesRead += static_cast<size_t>(dataBytesRead + footerBytesRead);
+  pagesRead++;
 
   if (dataBytesRead != sizeof(buffer.data) || footerBytesRead != sizeof(buffer.footer)) {
 		// TODO: Create custom exception class for this
     throw std::runtime_error("End of file reached or insufficient data for SDCardFormattedData.");
   }
   return buffer;
+}
+
+bool SDCardReader::isEndOfFile() const {
+  if (!file) {
+    return true;
+  }
+  if (file.eof() || bytesRead >= fileSize) {
+    return true;
+  }
+  return false;
 }
 
 size_t SDCardReader::getBytesRead() const {

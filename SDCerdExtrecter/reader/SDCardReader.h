@@ -17,12 +17,14 @@ public:
 	[[nodiscard]] SDCardFormattedData& readNext();
   [[nodiscard]] size_t getBytesRead() const;
   [[nodiscard]] const SDCardFormattedData& getBuffer() const;
+	[[nodiscard]] bool isEndOfFile() const;
 
 private:
 	std::ifstream file;
 	std::string filename;
 	size_t fileSize;
 	size_t numberOfFilledPages;
+	size_t pagesRead;
   SDCardFormattedData buffer;
   size_t bytesRead = 0;
 };
