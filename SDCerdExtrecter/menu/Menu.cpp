@@ -86,7 +86,7 @@ void Menu::selectFile() {
     return;
   }
   std::cout << "\nSelect a directory:\n";
-  for (size_t i = 0; i < directories.size(); ++i) {
+  for (size_t i = 0; i < directories.size(); i++) {
     std::cout << "  [" << i + 1 << "] " << directories[i].filename().string() << '\n';
   }
   int dirChoice = getUserChoice(1, static_cast<int>(directories.size()), "Enter directory index: ");
@@ -98,7 +98,7 @@ void Menu::selectFile() {
     return;
   }
   std::cout << "\nSelect a file:\n";
-  for (size_t i = 0; i < files.size(); ++i) {
+  for (size_t i = 0; i < files.size(); i++) {
     std::cout << "  [" << i + 1 << "] " << files[i].filename().string() << '\n';
   }
   int fileChoice = getUserChoice(1, static_cast<int>(files.size()), "Enter file index: ");

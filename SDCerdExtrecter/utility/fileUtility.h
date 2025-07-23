@@ -10,7 +10,7 @@ namespace FileUtility {
     for (const auto& entry : fs::directory_iterator(root)) {
       entries.push_back(entry);
     }
-    for (size_t i = 0; i < entries.size(); ++i) {
+    for (size_t i = 0; i < entries.size(); i++) {
       const auto& entry = entries[i];
       bool isLast = (i == entries.size() - 1);
       std::cout << prefix
