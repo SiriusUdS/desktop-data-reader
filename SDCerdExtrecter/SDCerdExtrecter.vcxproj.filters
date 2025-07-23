@@ -56,5 +56,8 @@
     <ClInclude Include="reader\CRC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="utility\fileUtility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
