@@ -13,11 +13,10 @@ public:
 	SDCardReader(SDCardReader&&) noexcept = default; // Move constructor
 	SDCardReader& operator=(SDCardReader&&) noexcept = default; // Move assignment operator
 
-
-	[[nodiscard]] SDCardFormattedData& readNext();
+  [[nodiscard]] SDCardPageBuffer& readNext();
   [[nodiscard]] size_t getBytesRead() const;
-  [[nodiscard]] const SDCardFormattedData& getBuffer() const;
-	[[nodiscard]] bool isEndOfFile() const;
+  [[nodiscard]] const SDCardPageBuffer& getBuffer() const;
+  [[nodiscard]] bool isEndOfFile() const;
 
 private:
 	std::ifstream file;
@@ -25,6 +24,6 @@ private:
 	size_t fileSize;
 	size_t numberOfFilledPages;
 	size_t pagesRead;
-  SDCardFormattedData buffer;
+  SDCardPageBuffer buffer;
   size_t bytesRead = 0;
 };

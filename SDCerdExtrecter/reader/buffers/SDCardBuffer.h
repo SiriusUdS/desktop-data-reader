@@ -25,13 +25,20 @@ constexpr size_t ADC_SECTIONS_PER_CHUNK = ADC_CHUNK_SIZE / ADC_CHANNEL_SECTION_S
 constexpr size_t CHUNKS_PER_PAGE = SD_CARD_DATA_SIZE / ADC_CHUNK_SIZE;
 
 struct ADCChunk {
+  // 0 - 7: Thermistances
+  // 8 - 9: Not used
+  // 10 - 11: Pressure transducer
+  // 12 - 15: Not used
   uint16_t adcChannelData[ADC_CHANNEL_SECTION_SIZE];
 };
 
 struct SDCardFormattedData {
-  union {
-    uint8_t data[SD_CARD_DATA_SIZE];
-    ADCChunk chunks[CHUNKS_PER_PAGE];
-  };
+  uint8_t data[SD_CARD_DATA_SIZE];
   SDCardFooter footer;
+};
+
+union SDCardPageBuffer {
+  uint8_t raw[SD_CARD_BUFFER_SIZE_BYTES / 2];
+  uint16_t values[(SD_CARD_BUFFER_SIZE_BYTES / 2) / sizeof(uint16_t)];
+  SDCardFormattedData formatted;
 };

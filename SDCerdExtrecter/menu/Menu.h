@@ -1,6 +1,16 @@
 #pragma once
 #include <string>
 #include <filesystem>
+#include <iostream>
+#include <limits>
+
+#include <SFML/Audio/SoundBuffer.hpp>
+#include <SFML/Audio/Sound.hpp>
+
+#include "BeepQueueManager.h"
+#include "SDCardReader.h"
+#include "../utility/FileUtility.h"
+#include "CRC.h"
 
 class Menu {
 public:

@@ -1,7 +1,7 @@
 #include "SDCardReader.h"
 
 SDCardReader::SDCardReader(const std::string& filename) :pagesRead(0) {
-	buffer = SDCardFormattedData();
+  buffer = SDCardPageBuffer{};
   this->filename = filename;
   file.open(filename, std::ios::binary);
   if (!file) {
@@ -13,25 +13,19 @@ SDCardReader::SDCardReader(const std::string& filename) :pagesRead(0) {
   if (fileSize == 0) {
     std::cerr << "File is empty: " << filename << '\n';
 	}
-  numberOfFilledPages = fileSize / sizeof(SDCardFormattedData);
+  numberOfFilledPages = fileSize / sizeof(SDCardPageBuffer);
 	file.seekg(0, std::ios::beg);
 }
 
-SDCardFormattedData& SDCardReader::readNext() {
-  file.read(reinterpret_cast<char*>(buffer.data), sizeof(buffer.data));
-  const std::streamsize dataBytesRead = file.gcount();
-
-  file.read(reinterpret_cast<char*>(&buffer.footer), sizeof(buffer.footer));
-  const std::streamsize footerBytesRead = file.gcount();
-
-  bytesRead += static_cast<size_t>(dataBytesRead + footerBytesRead);
-  pagesRead++;
-
-  if (dataBytesRead != sizeof(buffer.data) || footerBytesRead != sizeof(buffer.footer)) {
-		// TODO: Create custom exception class for this
-    throw std::runtime_error("End of file reached or insufficient data for SDCardFormattedData.");
-  }
-  return buffer;
+SDCardPageBuffer& SDCardReader::readNext() {
+    file.read(reinterpret_cast<char*>(&buffer.formatted), sizeof(SDCardFormattedData));
+    const std::streamsize bytesReadNow = file.gcount();
+    bytesRead += static_cast<size_t>(bytesReadNow);
+    pagesRead++;
+    if (bytesReadNow != sizeof(SDCardFormattedData)) {
+        throw std::runtime_error("End of file reached or insufficient data for SDCardFormattedData.");
+    }
+    return buffer;
 }
 
 bool SDCardReader::isEndOfFile() const {
@@ -48,6 +42,6 @@ size_t SDCardReader::getBytesRead() const {
   return bytesRead;
 }
 
-const SDCardFormattedData& SDCardReader::getBuffer() const {
+const SDCardPageBuffer& SDCardReader::getBuffer() const {
   return buffer;
 }

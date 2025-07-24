@@ -1,9 +1,4 @@
 #include "Menu.h"
-#include <iostream>
-#include <limits>
-
-#include "SDCardReader.h"
-#include "../utility/FileUtility.h"
 
 namespace fs = std::filesystem;
 
@@ -87,20 +82,45 @@ void Menu::readSDCard() {
     return;
   }
   SDCardReader reader(selectedFile);
+  BeepQueueManager beepManager;
+  size_t pageIndex = 0;
+  size_t failedCrcCount = 0;
+
   while (!reader.isEndOfFile()) {
-    SDCardFormattedData data = reader.readNext();
+    SDCardPageBuffer& buffer = reader.readNext();
+    const SDCardFormattedData& formatted = buffer.formatted;
+    const ADCChunk* chunks = reinterpret_cast<const ADCChunk*>(formatted.data);
 
-    std::string outputFile = outputDir + "/" + std::to_string(reader.getBytesRead()) + ".csv";
+    for (size_t chunkIdx = 0; chunkIdx < CHUNKS_PER_PAGE; chunkIdx++) {
+      const ADCChunk& chunk = chunks[chunkIdx];
 
-    //std::string outputFile = outputDir + "/" + std::to_string(reader.getBytesRead()) + ".bin";
-    //std::ofstream outFile(outputFile, std::ios::binary);
-    //if (!outFile) {
-    //  lastAction = "Failed to open output file: " + outputFile;
-    //  return;
-    //}
-    //outFile.write(reinterpret_cast<const char*>(data.data()), data.size());
-    //outFile.close();
+      for (uint16_t adcValue : chunk.adcChannelData) {
+        AudioBeepConfiguration config;
+        config.frequency_hz = static_cast<float>(adcValue) * 10.0f;
+        config.duration_sec = 0.1f;
+        config.fadeIn_sec   = 0.02f;
+        config.fadeOut_sec  = 0.02f;
+        config.sampleRate   = 44100;
+        config.amplitude    = enableEarrape ? 10000.f : 5000.f;
+        //BeepQueueManager::playBeep(config, buffers, sounds);
+        //std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      }
+    }
+    pageIndex++;
+    size_t crc_offset = offsetof(SDCardFormattedData, footer) + offsetof(SDCardFooter, crc);
+    uint32_t computedCrc = computeCrc(reinterpret_cast<uint8_t*>(&buffer.formatted), crc_offset);
+    if (computedCrc != formatted.footer.crc) {
+      failedCrcCount++;
+    }
+    std::cout << "Processed page: "
+              << pageIndex
+              << '\n'
+              << "  with crc: "
+              << formatted.footer.crc
+              << ". Calculated: "
+              << computedCrc << '\n';
   }
+  lastAction = "SD card read complete. Processed " + std::to_string(pageIndex) + " pages.";
 }
 
 void Menu::selectFile() {
