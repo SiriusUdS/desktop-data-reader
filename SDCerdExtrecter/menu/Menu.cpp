@@ -87,10 +87,6 @@ void Menu::readSDCard() {
   size_t pageIndex = 0;
   size_t failedCrcCount = 0;
 
-  std::thread beepThread([&beepManager]() {
-    beepManager.consumeBeeps();
-  });
-
   while (!reader.isEndOfFile()) {
     SDCardPageBuffer& buffer = reader.readNext();
     const SDCardFormattedData& formatted = buffer.formatted;
@@ -106,13 +102,21 @@ void Menu::readSDCard() {
       }
       adcValueMean /= ADC_CHANNEL_SECTION_SIZE;
       adcChunkValueMean += adcValueMean;
+      //AudioBeepConfiguration config;
+      //config.frequency_hz = static_cast<float>(adcValueMean) * 10.0f;
+      //config.duration_sec = 0.25f;
+      //config.fadeIn_sec   = 0.05f;
+      //config.fadeOut_sec  = 0.05f;
+      //config.sampleRate   = 44100;
+      //config.amplitude    = enableEarrape ? 10000.f : 5000.f;
+      //beepManager.enqueueBeep(config);
     }
     adcChunkValueMean /= CHUNKS_PER_PAGE;
     AudioBeepConfiguration config;
-    config.frequency_hz = static_cast<float>(adcChunkValueMean) * 10.0f;
-    config.duration_sec = 0.01f;
-    config.fadeIn_sec   = 0.002f;
-    config.fadeOut_sec  = 0.002f;
+    config.frequency_hz = static_cast<float>(adcChunkValueMean) * 20.0f;
+    config.duration_sec = 0.5f;
+    config.fadeIn_sec   = 0.2f;
+    config.fadeOut_sec  = 0.2f;
     config.sampleRate   = 44100;
     config.amplitude    = enableEarrape ? 10000.f : 5000.f;
     beepManager.enqueueBeep(config);
@@ -123,17 +127,15 @@ void Menu::readSDCard() {
     if (computedCrc != formatted.footer.crc) {
       failedCrcCount++;
     }
-    std::cout << "Processed page: "
-              << pageIndex
-              << '\n'
-              << "  with crc: "
-              << formatted.footer.crc
-              << ". Calculated: "
-              << computedCrc << '\n';
+    //std::cout << "Processed page: "
+    //          << pageIndex
+    //          << '\n'
+    //          << "  with crc: "
+    //          << formatted.footer.crc
+    //          << ". Calculated: "
+    //          << computedCrc << '\n';
   }
-  beepManager.notifyProducerDone();
-  beepThread.join();
-  lastAction = "SD card read complete. Processed " + std::to_string(pageIndex) + " pages.";
+  lastAction = "SD card read complete. Processed " + std::to_string(pageIndex) + " pages with " + std::to_string(failedCrcCount) + " failed CRC checks.";
 }
 
 void Menu::selectFile() {
