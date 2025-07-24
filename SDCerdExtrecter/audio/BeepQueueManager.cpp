@@ -81,3 +81,11 @@ void BeepQueueManager::cleanupStoppedSounds(std::vector<std::unique_ptr<sf::Soun
     }
   }
 }
+
+void BeepQueueManager::enqueueBeep(const AudioBeepConfiguration& config) {
+  pushBeepConfig(config, 0);
+}
+
+void BeepQueueManager::notifyProducerDone() {
+  setProducerDone();
+}

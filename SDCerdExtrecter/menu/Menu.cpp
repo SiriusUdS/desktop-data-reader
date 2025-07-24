@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include <thread>
 
 namespace fs = std::filesystem;
 
@@ -10,7 +11,7 @@ void Menu::run() {
       system("clear");
     #endif
     displayMenu();
-    const int choice = getUserChoice(1, 5, "Enter choice: ");
+    const int choice = getUserChoice(1, 6, "Enter choice: ");
     handleMenuChoice(choice);
   }
 }
@@ -86,26 +87,36 @@ void Menu::readSDCard() {
   size_t pageIndex = 0;
   size_t failedCrcCount = 0;
 
+  std::thread beepThread([&beepManager]() {
+    beepManager.consumeBeeps();
+  });
+
   while (!reader.isEndOfFile()) {
     SDCardPageBuffer& buffer = reader.readNext();
     const SDCardFormattedData& formatted = buffer.formatted;
     const ADCChunk* chunks = reinterpret_cast<const ADCChunk*>(formatted.data);
 
+    uint16_t adcChunkValueMean = 0;
     for (size_t chunkIdx = 0; chunkIdx < CHUNKS_PER_PAGE; chunkIdx++) {
       const ADCChunk& chunk = chunks[chunkIdx];
 
+      uint16_t adcValueMean = 0;
       for (uint16_t adcValue : chunk.adcChannelData) {
-        AudioBeepConfiguration config;
-        config.frequency_hz = static_cast<float>(adcValue) * 10.0f;
-        config.duration_sec = 0.1f;
-        config.fadeIn_sec   = 0.02f;
-        config.fadeOut_sec  = 0.02f;
-        config.sampleRate   = 44100;
-        config.amplitude    = enableEarrape ? 10000.f : 5000.f;
-        //BeepQueueManager::playBeep(config, buffers, sounds);
-        //std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        adcValueMean += adcValue;
       }
+      adcValueMean /= ADC_CHANNEL_SECTION_SIZE;
+      adcChunkValueMean += adcValueMean;
     }
+    adcChunkValueMean /= CHUNKS_PER_PAGE;
+    AudioBeepConfiguration config;
+    config.frequency_hz = static_cast<float>(adcChunkValueMean) * 10.0f;
+    config.duration_sec = 0.01f;
+    config.fadeIn_sec   = 0.002f;
+    config.fadeOut_sec  = 0.002f;
+    config.sampleRate   = 44100;
+    config.amplitude    = enableEarrape ? 10000.f : 5000.f;
+    beepManager.enqueueBeep(config);
+
     pageIndex++;
     size_t crc_offset = offsetof(SDCardFormattedData, footer) + offsetof(SDCardFooter, crc);
     uint32_t computedCrc = computeCrc(reinterpret_cast<uint8_t*>(&buffer.formatted), crc_offset);
@@ -120,6 +131,8 @@ void Menu::readSDCard() {
               << ". Calculated: "
               << computedCrc << '\n';
   }
+  beepManager.notifyProducerDone();
+  beepThread.join();
   lastAction = "SD card read complete. Processed " + std::to_string(pageIndex) + " pages.";
 }
 
