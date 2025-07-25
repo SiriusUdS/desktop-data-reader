@@ -86,6 +86,7 @@ void Menu::readSDCard() {
   BeepQueueManager beepManager;
   size_t pageIndex = 0;
   size_t failedCrcCount = 0;
+  std::vector<size_t> failedCrcIndexes;
 
   while (!reader.isEndOfFile()) {
     SDCardPageBuffer& buffer = reader.readNext();
@@ -112,20 +113,21 @@ void Menu::readSDCard() {
       //beepManager.enqueueBeep(config);
     }
     adcChunkValueMean /= CHUNKS_PER_PAGE;
-    AudioBeepConfiguration config;
-    config.frequency_hz = static_cast<float>(adcChunkValueMean) * 20.0f;
-    config.duration_sec = 0.5f;
-    config.fadeIn_sec   = 0.2f;
-    config.fadeOut_sec  = 0.2f;
-    config.sampleRate   = 44100;
-    config.amplitude    = enableEarrape ? 10000.f : 5000.f;
-    beepManager.enqueueBeep(config);
+    //AudioBeepConfiguration config;
+    //config.frequency_hz = static_cast<float>(adcChunkValueMean) * 20.0f;
+    //config.duration_sec = 0.5f;
+    //config.fadeIn_sec   = 0.2f;
+    //config.fadeOut_sec  = 0.2f;
+    //config.sampleRate   = 44100;
+    //config.amplitude    = enableEarrape ? 10000.f : 5000.f;
+    //beepManager.enqueueBeep(config);
 
     pageIndex++;
     size_t crc_offset = offsetof(SDCardFormattedData, footer) + offsetof(SDCardFooter, crc);
     uint32_t computedCrc = computeCrc(reinterpret_cast<uint8_t*>(&buffer.formatted), crc_offset);
     if (computedCrc != formatted.footer.crc) {
       failedCrcCount++;
+      failedCrcIndexes.push_back(pageIndex);
     }
     //std::cout << "Processed page: "
     //          << pageIndex
@@ -135,7 +137,12 @@ void Menu::readSDCard() {
     //          << ". Calculated: "
     //          << computedCrc << '\n';
   }
-  lastAction = "SD card read complete. Processed " + std::to_string(pageIndex) + " pages with " + std::to_string(failedCrcCount) + " failed CRC checks.";
+  std::string printableFailedCrcIndexes = std::to_string('\n');
+  for (const auto& failedCrcIndex : failedCrcIndexes) {
+    printableFailedCrcIndexes += std::to_string(failedCrcIndex);
+    printableFailedCrcIndexes += '\n';
+  }
+  lastAction = "SD card read complete. Processed " + std::to_string(pageIndex) + " pages with " + std::to_string(failedCrcCount) + " failed CRC checks.\nFailed CRC page indexes: " + printableFailedCrcIndexes;
 }
 
 void Menu::selectFile() {
