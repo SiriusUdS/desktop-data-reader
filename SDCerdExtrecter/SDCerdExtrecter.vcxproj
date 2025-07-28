@@ -159,6 +159,7 @@
     <ClCompile Include="reader\buffers\SDCardBuffer.h" />
     <ClCompile Include="reader\SDCardReader.cpp" />
     <ClCompile Include="SDCerdExtrecter.cpp" />
+    <ClCompile Include="writer\CSVWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audio\AudioBeepConfiguration.h" />
@@ -169,6 +170,7 @@
     <ClInclude Include="reader\CRC.h" />
     <ClInclude Include="reader\SDCardReader.h" />
     <ClInclude Include="utility\FileUtility.h" />
+    <ClInclude Include="writer\CSVWriter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

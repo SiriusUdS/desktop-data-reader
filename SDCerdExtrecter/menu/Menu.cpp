@@ -113,14 +113,14 @@ void Menu::readSDCard() {
       //beepManager.enqueueBeep(config);
     }
     adcChunkValueMean /= CHUNKS_PER_PAGE;
-    //AudioBeepConfiguration config;
-    //config.frequency_hz = static_cast<float>(adcChunkValueMean) * 20.0f;
-    //config.duration_sec = 0.5f;
-    //config.fadeIn_sec   = 0.2f;
-    //config.fadeOut_sec  = 0.2f;
-    //config.sampleRate   = 44100;
-    //config.amplitude    = enableEarrape ? 10000.f : 5000.f;
-    //beepManager.enqueueBeep(config);
+    AudioBeepConfiguration config;
+    config.frequency_hz = static_cast<float>(adcChunkValueMean) * 20.0f;
+    config.duration_sec = 0.5f;
+    config.fadeIn_sec   = 0.2f;
+    config.fadeOut_sec  = 0.2f;
+    config.sampleRate   = 44100;
+    config.amplitude    = enableEarrape ? 10000.f : 5000.f;
+    beepManager.enqueueBeep(config);
 
     pageIndex++;
     size_t crc_offset = offsetof(SDCardFormattedData, footer) + offsetof(SDCardFooter, crc);
@@ -137,10 +137,10 @@ void Menu::readSDCard() {
     //          << ". Calculated: "
     //          << computedCrc << '\n';
   }
-  std::string printableFailedCrcIndexes = std::to_string('\n');
+  std::string printableFailedCrcIndexes = "\n";
   for (const auto& failedCrcIndex : failedCrcIndexes) {
     printableFailedCrcIndexes += std::to_string(failedCrcIndex);
-    printableFailedCrcIndexes += '\n';
+    printableFailedCrcIndexes += "\n";
   }
   lastAction = "SD card read complete. Processed " + std::to_string(pageIndex) + " pages with " + std::to_string(failedCrcCount) + " failed CRC checks.\nFailed CRC page indexes: " + printableFailedCrcIndexes;
 }
