@@ -1,9 +1,8 @@
 #include "CSVWriter.h"
 
-#include <stdexcept>
-
-CSVWriter::CSVWriter(const std::string& fileName, char delimiter) {
+CSVWriter::CSVWriter(const std::string& fileName, char delimiter, const std::shared_ptr<BeepQueueManager>& beepManager) {
   this->delimiter = delimiter;
+  this->beepManager = beepManager;
   open(fileName);
 }
 
@@ -43,7 +42,7 @@ void CSVWriter::writeHeader(const std::string& header) {
   file << header << '\n';
 }
 
-void CSVWriter::writeHeader(const std::vector<uint32_t>& header) {
+void CSVWriter::writeHeader(const std::vector<std::string>& header) {
   if (!file.is_open()) {
     throw std::runtime_error("File is not open: " + fileName);
   }
@@ -59,6 +58,10 @@ void CSVWriter::writeHeader(const std::vector<uint32_t>& header) {
     }
   }
   file << '\n';
+}
+
+void CSVWriter::writeDefaultHeader() {
+  writeHeader(DEFAULT_COLUMNS);
 }
 
 void CSVWriter::writeRow(const std::string& row) {
@@ -85,6 +88,50 @@ void CSVWriter::writeRow(const std::vector<uint32_t>& row) {
     }
   }
   file << '\n';
+}
+
+void CSVWriter::writeRow(const SDCardFormattedData& rowData) {
+  if (!file.is_open()) {
+    throw std::runtime_error("File is not open: " + fileName);
+  }
+  const ADCChunk* chunks = reinterpret_cast<const ADCChunk*>(rowData.data);
+  const SDCardFooter footer = rowData.footer;
+
+  for (size_t chunkIdx = 0; chunkIdx < CHUNKS_PER_PAGE; chunkIdx++) {
+    const ADCChunk& chunk = chunks[chunkIdx];
+
+    file << footer.timestamp_ms        << delimiter
+         << footer.status              << delimiter
+         << footer.errorStatus         << delimiter
+         << footer.valveStatus[0]      << delimiter
+         << footer.valveStatus[1]      << delimiter
+         << footer.valveErrorStatus[0] << delimiter
+         << footer.valveErrorStatus[1] << delimiter
+         << footer.currentCommand[0]   << delimiter
+         << footer.currentCommand[1]   << delimiter
+         << footer.currentCommand[2]   << delimiter
+         << footer.signature           << delimiter
+         << footer.crc                 << delimiter;
+
+    uint64_t adcMean = 0;
+
+    for (const uint16_t adcValue : chunk.adcChannelData) {
+      file << adcValue << delimiter;
+      adcMean += adcValue;
+    }
+    adcMean /= ADC_CHANNEL_SECTION_SIZE;
+
+    AudioBeepConfiguration config;
+    config.frequency_hz = static_cast<float>(adcMean) * random(1, 50);
+    config.duration_sec = 0.25f;
+    config.fadeIn_sec   = 0.05f;
+    config.fadeOut_sec  = 0.05f;
+    config.sampleRate   = random(50, 44100);
+    config.amplitude    = beepManager->enableEarrape ? 10000.f : 5000.f;
+    beepManager->enqueueBeep(config);
+
+    file << footer.padding << '\n';
+  }
 }
 
 bool CSVWriter::validateRowData(const std::string& data) const {

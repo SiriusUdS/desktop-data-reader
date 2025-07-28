@@ -1,5 +1,4 @@
 #include "Menu.h"
-#include <thread>
 
 namespace fs = std::filesystem;
 
@@ -83,44 +82,24 @@ void Menu::readSDCard() {
     return;
   }
   SDCardReader reader(selectedFile);
-  BeepQueueManager beepManager;
+  std::shared_ptr<BeepQueueManager> beepManager = std::make_shared<BeepQueueManager>();
   size_t pageIndex = 0;
   size_t failedCrcCount = 0;
   std::vector<size_t> failedCrcIndexes;
 
+  std::string outputFileName = (fs::path(outputDir) / fs::path(selectedFile).filename().replace_extension(".csv")).string();
+  if (fs::exists(outputFileName)) {
+    outputFileName += "_new.csv";
+  }
+
+  CSVWriter csvWriter(outputFileName, ',', std::shared_ptr<BeepQueueManager>(beepManager));
+  csvWriter.writeDefaultHeader();
+
   while (!reader.isEndOfFile()) {
     SDCardPageBuffer& buffer = reader.readNext();
     const SDCardFormattedData& formatted = buffer.formatted;
-    const ADCChunk* chunks = reinterpret_cast<const ADCChunk*>(formatted.data);
 
-    uint16_t adcChunkValueMean = 0;
-    for (size_t chunkIdx = 0; chunkIdx < CHUNKS_PER_PAGE; chunkIdx++) {
-      const ADCChunk& chunk = chunks[chunkIdx];
-
-      uint16_t adcValueMean = 0;
-      for (uint16_t adcValue : chunk.adcChannelData) {
-        adcValueMean += adcValue;
-      }
-      adcValueMean /= ADC_CHANNEL_SECTION_SIZE;
-      adcChunkValueMean += adcValueMean;
-      //AudioBeepConfiguration config;
-      //config.frequency_hz = static_cast<float>(adcValueMean) * 10.0f;
-      //config.duration_sec = 0.25f;
-      //config.fadeIn_sec   = 0.05f;
-      //config.fadeOut_sec  = 0.05f;
-      //config.sampleRate   = 44100;
-      //config.amplitude    = enableEarrape ? 10000.f : 5000.f;
-      //beepManager.enqueueBeep(config);
-    }
-    adcChunkValueMean /= CHUNKS_PER_PAGE;
-    AudioBeepConfiguration config;
-    config.frequency_hz = static_cast<float>(adcChunkValueMean) * 20.0f;
-    config.duration_sec = 0.5f;
-    config.fadeIn_sec   = 0.2f;
-    config.fadeOut_sec  = 0.2f;
-    config.sampleRate   = 44100;
-    config.amplitude    = enableEarrape ? 10000.f : 5000.f;
-    beepManager.enqueueBeep(config);
+    csvWriter.writeRow(formatted);
 
     pageIndex++;
     size_t crc_offset = offsetof(SDCardFormattedData, footer) + offsetof(SDCardFooter, crc);
@@ -156,8 +135,8 @@ void Menu::selectFile() {
   for (size_t i = 0; i < directories.size(); i++) {
     std::cout << "  [" << i + 1 << "] " << directories[i].filename().string() << '\n';
   }
-  int dirChoice = getUserChoice(1, static_cast<int>(directories.size()), "Enter directory index: ");
-  fs::path selectedDir = directories[dirChoice - 1];
+  const int dirChoice = getUserChoice(1, static_cast<int>(directories.size()), "Enter directory index: ");
+  const fs::path selectedDir = directories[dirChoice - 1];
   std::vector<fs::path> files;
   FileUtility::collectFilesInDir(selectedDir, files);
   if (files.empty()) {
@@ -168,7 +147,7 @@ void Menu::selectFile() {
   for (size_t i = 0; i < files.size(); i++) {
     std::cout << "  [" << i + 1 << "] " << files[i].filename().string() << '\n';
   }
-  int fileChoice = getUserChoice(1, static_cast<int>(files.size()), "Enter file index: ");
+  const int fileChoice = getUserChoice(1, static_cast<int>(files.size()), "Enter file index: ");
   selectedFile = files[fileChoice - 1].string();
   lastAction = "Selected file: " + selectedFile;
 }

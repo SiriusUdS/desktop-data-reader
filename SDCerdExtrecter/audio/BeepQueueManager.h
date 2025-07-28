@@ -10,13 +10,16 @@ class BeepQueueManager {
 public:
   BeepQueueManager() = default;
   ~BeepQueueManager() = default;
-  BeepQueueManager(const BeepQueueManager&) = delete;
+  BeepQueueManager(const BeepQueueManager&) = default;
   BeepQueueManager& operator=(const BeepQueueManager&) = delete;
   BeepQueueManager(BeepQueueManager&&) = delete;
-  BeepQueueManager& operator=(BeepQueueManager&&) = delete;
+  BeepQueueManager& operator=(BeepQueueManager&&) = default;
 
   void enqueueBeep(const AudioBeepConfiguration& config);
   void cleanupStoppedSounds();
+
+public:
+  bool enableEarrape = false;
 
 private:
   std::vector<std::unique_ptr<sf::SoundBuffer>> buffers;

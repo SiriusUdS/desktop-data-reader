@@ -13,6 +13,7 @@ int main() {
     std::cerr << "Invalid SD card root directory.\n";
     return 1;
   }
+  srand(time(nullptr));
 	menu.sdCardRootDir = sdCardRootDir;
   menu.run();
   return 0;

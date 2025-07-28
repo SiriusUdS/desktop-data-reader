@@ -71,5 +71,8 @@
     <ClInclude Include="writer\CSVWriter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="utility\Random.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
