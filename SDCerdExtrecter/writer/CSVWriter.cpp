@@ -97,10 +97,16 @@ void CSVWriter::writeRow(const SDCardFormattedData& rowData) {
   const ADCChunk* chunks = reinterpret_cast<const ADCChunk*>(rowData.data);
   const SDCardFooter footer = rowData.footer;
 
+  static uint32_t firstTimestamp_us = 0;
+
   for (size_t chunkIdx = 0; chunkIdx < CHUNKS_PER_PAGE; chunkIdx++) {
     const ADCChunk& chunk = chunks[chunkIdx];
 
-    file << footer.timestamp_ms        << delimiter
+    if (firstTimestamp_us == 0) {
+      firstTimestamp_us = footer.timestamp_ms * 1000;
+    }
+
+    file << firstTimestamp_us + ((213 * 1000) / 1020) << delimiter //(deltaTimestamp == 0u ? footer.timestamp_ms : footer.timestamp_ms + (deltaTimestamp * (chunkIdx + 1))) << delimiter
          << footer.status              << delimiter
          << footer.errorStatus         << delimiter
          << footer.valveStatus[0]      << delimiter
@@ -114,6 +120,7 @@ void CSVWriter::writeRow(const SDCardFormattedData& rowData) {
          << footer.crc                 << delimiter;
 
     uint64_t adcMean = 0;
+    firstTimestamp_us += ((213 * 1000) / 256);
 
     for (const uint16_t adcValue : chunk.adcChannelData) {
       file << adcValue << delimiter;
@@ -131,6 +138,7 @@ void CSVWriter::writeRow(const SDCardFormattedData& rowData) {
     beepManager->enqueueBeep(config);
 
     file << footer.padding << '\n';
+    //i++;
   }
 }
 
