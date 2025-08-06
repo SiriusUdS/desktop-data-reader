@@ -98,26 +98,28 @@ void CSVWriter::writeRow(const SDCardFormattedData& rowData) {
   const SDCardFooter footer = rowData.footer;
 
   static uint32_t firstTimestamp_us = 0;
+  static uint32_t timeSinceIgnite_us = 0;
 
   for (size_t chunkIdx = 0; chunkIdx < CHUNKS_PER_PAGE; chunkIdx++) {
     const ADCChunk& chunk = chunks[chunkIdx];
 
     if (firstTimestamp_us == 0) {
       firstTimestamp_us = footer.timestamp_ms * 1000;
+      timeSinceIgnite_us = firstTimestamp_us;
     }
 
-    file << firstTimestamp_us + ((213 * 1000) / 1020) << delimiter //(deltaTimestamp == 0u ? footer.timestamp_ms : footer.timestamp_ms + (deltaTimestamp * (chunkIdx + 1))) << delimiter
-         << footer.status              << delimiter
-         << footer.errorStatus         << delimiter
-         << footer.valveStatus[0]      << delimiter
-         << footer.valveStatus[1]      << delimiter
-         << footer.valveErrorStatus[0] << delimiter
-         << footer.valveErrorStatus[1] << delimiter
-         << footer.currentCommand[0]   << delimiter
-         << footer.currentCommand[1]   << delimiter
-         << footer.currentCommand[2]   << delimiter
-         << footer.signature           << delimiter
-         << footer.crc                 << delimiter;
+    file << firstTimestamp_us - timeSinceIgnite_us << delimiter //(deltaTimestamp == 0u ? footer.timestamp_ms : footer.timestamp_ms + (deltaTimestamp * (chunkIdx + 1))) << delimiter
+         << footer.status                          << delimiter
+         << footer.errorStatus                     << delimiter
+         << footer.valveStatus[0]                  << delimiter
+         << footer.valveStatus[1]                  << delimiter
+         << footer.valveErrorStatus[0]             << delimiter
+         << footer.valveErrorStatus[1]             << delimiter
+         << footer.currentCommand[0]               << delimiter
+         << footer.currentCommand[1]               << delimiter
+         << footer.currentCommand[2]               << delimiter
+         << footer.signature                       << delimiter
+         << footer.crc                             << delimiter;
 
     uint64_t adcMean = 0;
     firstTimestamp_us += ((213 * 1000) / 256);
