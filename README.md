@@ -10,7 +10,7 @@
 - [License](#license)
 
 ## Project Overview
-This repository is a C++20 project that extract data from an SD card and generates beep sounds at different frequencies and durations while doing it using SFML for audio playback.
+This repository is a C++20 project that generates beep sounds from the extraction of data from an SD card. The audio is managed by the SFML library.
 
 ## Prerequisites
 - Visual Studio 2019 or newer (x64 configuration recommended)
