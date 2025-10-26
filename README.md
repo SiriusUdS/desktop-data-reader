@@ -1,4 +1,4 @@
-# SDCerdExtrecter
+# Desktop Data Reader
 
 ## Table of Contents
 - [Project Overview](#project-overview)
@@ -10,7 +10,7 @@
 - [License](#license)
 
 ## Project Overview
-SDCerdExtrecter is a C++20 project that extract data from an SD card and generates beep sounds at different frequencies and durations while doing it using SFML for audio playback.
+This repository is a C++20 project that extract data from an SD card and generates beep sounds at different frequencies and durations while doing it using SFML for audio playback.
 
 ## Prerequisites
 - Visual Studio 2019 or newer (x64 configuration recommended)
